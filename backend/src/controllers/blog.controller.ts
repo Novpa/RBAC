@@ -6,8 +6,8 @@ export const blogController = {
   async createBlog(req: Request, res: Response) {
     const { authorId, title, blogBody } = req.body;
 
-    await blogService.createBlog({ authorId, title, blogBody });
-
+    const newBlog = await blogService.createBlog({ authorId, title, blogBody });
+    console.log("newBlog", newBlog);
     res.status(200).json({
       success: true,
       message: "Blog created successfully",
@@ -55,7 +55,7 @@ export const blogController = {
   //? GET ALL BLOG
   async getAllBlog(req: Request, res: Response) {
     const allBlog = await blogService.getAllBlog();
-
+    // console.log("blog", allBlog);
     res.status(200).json({
       success: true,
       message: "Blog data are fectched successfully",

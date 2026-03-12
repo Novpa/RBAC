@@ -8,7 +8,11 @@ export const blogService = {
     title,
     blogBody,
   }: Omit<Blog, "id" | "createdAt" | "updatedAt" | "deletedAt">) {
-    await prisma.blog.create({ data: { authorId, title, blogBody } });
+    const newBlog = await prisma.blog.create({
+      data: { authorId, title, blogBody },
+    });
+
+    return newBlog;
   },
 
   async updateBlog({ blogId, newData }: UpdateBlog) {
