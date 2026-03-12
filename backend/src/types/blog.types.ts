@@ -8,3 +8,9 @@ export interface UpdateBlog {
   blogId: string;
   newData: BlogData;
 }
+
+export interface GetAllBlogParameter {
+  page: number;
+  limit: number;
+  search?: string;
+}

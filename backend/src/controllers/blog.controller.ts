@@ -54,12 +54,26 @@ export const blogController = {
 
   //? GET ALL BLOG
   async getAllBlog(req: Request, res: Response) {
-    const allBlog = await blogService.getAllBlog();
+    const page = Number(req.query?.page) || 1;
+    const limit = Number(req.query?.limit) || 10;
+    const search = req.query.search as string;
+
+    const { allBlog, totalData, currentPage, totalPage } =
+      await blogService.getAllBlog({
+        page,
+        limit,
+        search,
+      });
     // console.log("blog", allBlog);
     res.status(200).json({
       success: true,
       message: "Blog data are fectched successfully",
-      data: allBlog,
+      data: {
+        currentPage,
+        totalPage,
+        totalData,
+        allBlog,
+      },
     });
   },
 

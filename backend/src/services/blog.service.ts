@@ -1,8 +1,11 @@
+import { title } from "node:process";
 import { prisma } from "../config/prisma-client.config";
-import { Blog } from "../generated/prisma/client";
-import type { UpdateBlog } from "../types/blog.types";
+import { Blog, Prisma } from "../generated/prisma/client";
+import type { GetAllBlogParameter, UpdateBlog } from "../types/blog.types";
+import { off } from "node:cluster";
 
 export const blogService = {
+  //? CREATE BLOG
   async createBlog({
     authorId,
     title,
@@ -52,10 +55,42 @@ export const blogService = {
     return blogDetails;
   },
 
-  async getAllBlog() {
-    const allBlog = await prisma.blog.findMany({ where: { deletedAt: null } });
-    // console.log("allBlog", allBlog);
+  //? GET ALL BLOG
+  async getAllBlog({ page, limit, search }: GetAllBlogParameter) {
+    const offset = (page - 1) * limit;
 
-    return allBlog;
+    const where: Prisma.BlogWhereInput = {
+      deletedAt: null,
+    };
+
+    //Search by title / blogBody
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { blogBody: { contains: search, mode: "insensitive" } },
+      ];
+    }
+
+    const allBlog = await prisma.blog.findMany({
+      take: limit,
+      skip: offset,
+      where,
+      select: {
+        id: true,
+        author: { select: { firstName: true, lastName: true } },
+        title: true,
+        blogBody: true,
+      },
+    });
+
+    const totalData = await prisma.blog.count({ where });
+
+    return {
+      allBlog,
+      totalData,
+      currentPage: page,
+      totalPage: Math.ceil(totalData / limit),
+    };
   },
 };
