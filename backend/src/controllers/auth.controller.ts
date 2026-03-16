@@ -6,7 +6,7 @@ export const authController = {
   userRegister: catchAsync(async (req: Request, res: Response) => {
     const { firstName, lastName, email, role, password } = req.body;
 
-    await authServices.register({
+    const user = await authServices.register({
       firstName,
       lastName,
       email,
@@ -18,9 +18,7 @@ export const authController = {
       success: true,
       message: "User created successfully",
       data: {
-        firstName,
-        lastName,
-        role,
+        user,
       },
     });
   }),
