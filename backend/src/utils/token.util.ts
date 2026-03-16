@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import { UserRole } from "../dto/auth.dto";
 import crypto from "crypto";
-import prisma from "../config/prisma-client.config";
+import { prisma } from "../config/prisma-client.config";
+// import prisma from "../config/prisma-client.config";
 
 // payload type
 export interface TokenPayload {

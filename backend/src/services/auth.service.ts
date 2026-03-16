@@ -1,6 +1,7 @@
+// import prisma from "../config/prisma-client.config";
+// import { prisma } from "../config/prisma-client.config";
 import { prisma } from "../config/prisma-client.config";
 import { createUserPayload } from "../dto/auth.dto";
-import { User } from "../generated/prisma/client";
 
 export const authServices = {
   //? CREATE USER
