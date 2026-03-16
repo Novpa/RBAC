@@ -3,7 +3,7 @@ export enum UserRole {
   READER = "READER",
 }
 
-export class createUserPayload {
+export class CreateUserPayload {
   public readonly firstName: string;
   public readonly lastName: string;
   public readonly email: string;
@@ -11,13 +11,13 @@ export class createUserPayload {
 
   public readonly role: UserRole;
   constructor(
-    firstname: string,
+    firstName: string,
     lastName: string,
     email: string,
     password: string,
     role: UserRole,
   ) {
-    this.firstName = firstname;
+    this.firstName = firstName;
     this.lastName = lastName;
     this.email = email;
     this.password = password;

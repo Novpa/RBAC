@@ -1,11 +1,18 @@
 import { Request, Response } from "express";
 import { authServices } from "../services/auth.service";
+import { catchAsync } from "../utils/catchAsync";
 
 export const authController = {
-  async userRegister(req: Request, res: Response) {
+  userRegister: catchAsync(async (req: Request, res: Response) => {
     const { firstName, lastName, email, role, password } = req.body;
 
-    await authServices.register({ firstName, lastName, email, role, password });
+    await authServices.register({
+      firstName,
+      lastName,
+      email,
+      role,
+      password,
+    });
 
     res.status(201).json({
       success: true,
@@ -13,35 +20,36 @@ export const authController = {
       data: {
         firstName,
         lastName,
+        role,
       },
     });
-  },
+  }),
 
-  async getAllUser(req: Request, res: Response) {
+  getAllUser: catchAsync(async (req: Request, res: Response) => {
     //? Check the queries
     //? if undefined --> use default value
-    const page = req.query.page === undefined ? 1 : Number(req.query.page);
-    const limit = req.query.limit === undefined ? 10 : Number(req.query.limit);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+    const search = req.query.search as string;
 
-    if (isNaN(page) || isNaN(limit)) {
-      throw new Error("query : page & limit should be type of number");
-    }
-
-    const { user, totalData, currentPage } = await authServices.getAllUser({
+    const data = await authServices.getAllUser({
       page,
       limit,
+      search,
     });
-
-    console.log(user);
 
     res.status(200).json({
       success: true,
       message: "Fetch user data successfull",
-      data: { user, totalData, currentPage },
+      data: {
+        user: data?.user,
+        totalData: data?.totalData,
+        totalPage: data?.totalPage,
+      },
     });
-  },
+  }),
 
-  async userLogin(req: Request, res: Response) {
+  userLogin: catchAsync(async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const user = await authServices.userLogin({ email, password });
     res.status(200).json({
@@ -52,5 +60,5 @@ export const authController = {
         lastName: user?.lastName,
       },
     });
-  },
+  }),
 };
