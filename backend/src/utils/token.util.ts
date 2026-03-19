@@ -48,9 +48,11 @@ export const generateRefreshToken = async (userId: string): Promise<string> => {
   const expiratesAt = new Date();
   expiratesAt.setDate(expiratesAt.getDate() + 7); // 7 hari dari sekarang
 
-  await prisma.refreshToken.create({
+  const refreshToken = await prisma.refreshToken.create({
     data: { token, userId, expiratesAt },
   });
+
+  console.log("refresh token", refreshToken);
 
   return token;
 };
