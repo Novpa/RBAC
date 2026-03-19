@@ -3,9 +3,22 @@ import { authServices } from "../services/auth.service";
 import { catchAsync } from "../utils/catchAsync";
 
 export const authController = {
+  //? REGISTER
   userRegister: catchAsync(async (req: Request, res: Response) => {
     const { firstName, lastName, email, role, password } = req.body;
 
+    if (!firstName || !lastName || !email || !role || !password) {
+      return res
+        .status(408)
+        .json({ success: false, message: "All forms should be filled" });
+    }
+
+    if (password.length < 8) {
+      return res.status(408).json({
+        success: false,
+        message: "Password at least has 8 characters",
+      });
+    }
     const user = await authServices.register({
       firstName,
       lastName,
@@ -47,6 +60,7 @@ export const authController = {
     });
   }),
 
+  //? LOGIN
   userLogin: catchAsync(async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const data = await authServices.userLogin({ email, password });
