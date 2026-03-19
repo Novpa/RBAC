@@ -61,3 +61,17 @@ export function authentication(
     });
   }
 }
+
+export function authorization(...userRoles: string[]) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const isAllowed = userRoles.includes(req.user?.role as string);
+
+    if (!isAllowed) {
+      return res.status(403).json({
+        message: "Denied access",
+      });
+    }
+
+    next();
+  };
+}

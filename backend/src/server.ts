@@ -3,6 +3,7 @@ import express, { Express, NextFunction, Request, Response } from "express";
 import authRouter from "./routers/auth.router";
 import blogRouter from "./routers/blog.router";
 import { globalErrorHandler } from "./middlewares/errorMiddleware";
+import blogAuthRouter from "./routers/blogAuth.router";
 
 const app: Express = express();
 const PORT = 8000;
@@ -11,6 +12,7 @@ app.use(express.json());
 
 app.use("/api/user", authRouter);
 app.use("/api/blog", blogRouter);
+app.use("/api/auth", blogAuthRouter);
 
 app.use(globalErrorHandler);
 
