@@ -155,7 +155,7 @@ export const authServices = {
     // 1) cari token di database
     const storedToken = await prisma.refreshToken.findUnique({
       where: { token: oldRefreshToken },
-      include: { user: true },
+      include: { user: true }, // ambil juga data user untuk pembuatan jwt dan refresh token yang baru
     });
 
     // 2. Token tidak ditemukan — ada dua kemungkinan:
@@ -173,7 +173,7 @@ export const authServices = {
       await prisma.refreshToken.delete({
         where: { token: oldRefreshToken },
       });
-      throw new Error("REFRESH_TOKEN_EXPIRED");
+      throw new Error("REFRESH_TOKEN_EXPIRED"); // if expired --> ask user to log in again
     }
 
     // 4) jika token valid maka lakukan rotasi

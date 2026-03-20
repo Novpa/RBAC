@@ -77,10 +77,12 @@ export const authController = {
   }),
 
   //? REFRESH
+  // will be hit by front-end once they have 401 response code : "TOKEN_EXPIRED"
   async refresh(req: Request, res: Response) {
     try {
       // ambil refresh token dari cookie
       const oldRefreshToken = req.cookies.refreshToken;
+      console.log("oldRefreshToken", oldRefreshToken);
 
       if (!oldRefreshToken) {
         return res

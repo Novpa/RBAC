@@ -12,7 +12,7 @@ declare global {
   }
 }
 
-// MIDDLEWARE 1: authenticate
+//? MIDDLEWARE 1: authenticate
 // Tujuan: "Siapa yang mengirim request ini?"
 // Dijalankan di SETIAP route yang membutuhkan login
 
@@ -48,7 +48,9 @@ export function authentication(
 
     next();
   } catch (error: any) {
+    console.log(error);
     if (error.name === "TokenExpiredError") {
+      //! "TokenExpiredError" is error that is coming from jwt itself
       return res.status(401).json({
         success: false,
         message: "Access token has expired",
@@ -62,9 +64,10 @@ export function authentication(
   }
 }
 
+//? AUTHORIZATION
 export function authorization(...userRoles: string[]) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const isAllowed = userRoles.includes(req.user?.role as string);
+    const isAllowed = userRoles.includes(req.user?.role as string); // check apakah pada userRoles ini ada roles current user
 
     if (!isAllowed) {
       return res.status(403).json({

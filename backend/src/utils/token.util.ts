@@ -1,18 +1,16 @@
 import jwt from "jsonwebtoken";
-// import { UserRole } from "../dto/auth.dto";
 import crypto from "crypto";
 import { prisma } from "../config/prisma-client.config";
 import { Role } from "../generated/prisma/enums";
-// import prisma from "../config/prisma-client.config";
 
-// payload type
+//? payload type
 export interface TokenPayload {
   userId: string;
   email: string;
   role: Role;
 }
 
-// generate access token function
+//? generate access token function
 export const generateAccessToken = (user: TokenPayload): string => {
   return jwt.sign(
     {
@@ -22,13 +20,13 @@ export const generateAccessToken = (user: TokenPayload): string => {
     },
     process.env.JWT_ACCESS_SECRET!,
     {
-      expiresIn: "15m",
+      expiresIn: "1m",
       issuer: "loggy",
     },
   );
 };
 
-// verify access token function
+//? verify access token function
 export const verifyAccessToken = (token: string): TokenPayload => {
   return jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as TokenPayload;
 
@@ -37,7 +35,7 @@ export const verifyAccessToken = (token: string): TokenPayload => {
   // kita biarkan error muncul, middleware yang akan menangkapnya
 };
 
-// Refresh token
+//?  generate refresh token
 // Berumur panjang (7 hari). DISIMPAN di database sehingga bisa
 // dicabut (revoke) kapan saja — ini yang membedakannya dari Access Token.
 // Bentuknya string acak, bukan JWT, karena kita tidak butuh decode payload-nya.
@@ -57,6 +55,7 @@ export const generateRefreshToken = async (userId: string): Promise<string> => {
   return token;
 };
 
+//? rotate refresh token
 export const rotateRefreshToken = async (
   oldToken: string,
   userId: string,
@@ -64,14 +63,17 @@ export const rotateRefreshToken = async (
   // Operasi ini harus "atomic" — hapus lama DAN buat baru dalam satu transaksi
   // Kalau salah satu gagal, keduanya dibatalkan (tidak ada state setengah-setengah)
 
+  //1)  Buat token
   const newToken = crypto.randomBytes(64).toString("hex");
 
   const expiratesAt = new Date();
   expiratesAt.setDate(expiratesAt.getDate() + 7);
 
   await prisma.$transaction([
-    prisma.refreshToken.delete({ where: { token: oldToken } }),
+    // $transaction dilakukan untuk menjalankan banyak request dalam satu scope
+    prisma.refreshToken.delete({ where: { token: oldToken } }), // delete
     prisma.refreshToken.create({
+      // create baru dan simpan ke database
       data: { token: newToken, userId, expiratesAt },
     }),
   ]);
@@ -79,6 +81,7 @@ export const rotateRefreshToken = async (
   return newToken;
 };
 
+//? revoke token
 //Digunakan saat logout atau saat mendeteksi pencurian token
 export const revokeToken = async (userId: string): Promise<void> => {
   await prisma.refreshToken.deleteMany({ where: { userId } });
