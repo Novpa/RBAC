@@ -1,5 +1,4 @@
 import { Request, Response, Router } from "express";
-
 import { authController } from "../controllers/auth.controller";
 import { authentication, authorization } from "../middlewares/auth.middleware";
 
