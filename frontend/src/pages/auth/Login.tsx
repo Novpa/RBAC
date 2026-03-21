@@ -74,7 +74,9 @@ function Login() {
               )}
             </div>
 
-            <button className="btn btn-outline">Submit</button>
+            <button type="submit" className="btn btn-outline">
+              Submit
+            </button>
           </form>
         </div>
       </div>
