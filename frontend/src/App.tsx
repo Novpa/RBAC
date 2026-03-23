@@ -6,6 +6,7 @@ import Signup from "./pages/auth/Signup";
 import ErrorBoundary from "./pages/ErrorBoundary";
 import AuthorManagement from "./pages/blog/AuthorManagement";
 import Login from "./pages/auth/Login";
+import Unauthorized from "./pages/Unauthorized";
 
 function App() {
   const router = createBrowserRouter([
@@ -33,6 +34,10 @@ function App() {
         {
           path: "author/management",
           Component: AuthorManagement,
+        },
+        {
+          path: "unauthorized",
+          Component: Unauthorized,
         },
       ],
     },
