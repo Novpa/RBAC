@@ -8,7 +8,7 @@ interface State {
 }
 
 interface Action {
-  login: (
+  setAuth: (
     userId: string,
     email: string,
     role: "AUTHOR" | "READER",
@@ -24,7 +24,7 @@ export const useAuthStore = create<State & Action>((set) => ({
   role: null,
   token: "",
 
-  login: (userId, email, role, token) => {
+  setAuth: (userId, email, role, token) => {
     set({ userId, email, role, token });
   },
 

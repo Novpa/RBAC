@@ -9,7 +9,7 @@ import { useAuthStore } from "../../store/useAuthStore";
 
 function Login() {
   const navigate = useNavigate();
-  const userLogin = useAuthStore((state) => state.login);
+  const userLogin = useAuthStore((state) => state.setAuth);
 
   const formik = useFormik({
     initialValues: {

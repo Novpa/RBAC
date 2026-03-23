@@ -47,7 +47,7 @@ axiosInstance.interceptors.response.use(
         // 2) update access token di zustand
         useAuthStore
           .getState()
-          .login(
+          .setAuth(
             res.data.user.userId,
             res.data.user.email,
             res.data.user.role,
