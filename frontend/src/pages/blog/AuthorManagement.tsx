@@ -5,7 +5,10 @@ function AuthorManagement() {
     <div>
       <h1>Author management</h1>
       <Link className="btn" to={"/blog"}>
-        Blog
+        My blog
+      </Link>
+      <Link className="btn" to={"/blog/new"}>
+        Create blog
       </Link>
     </div>
   );

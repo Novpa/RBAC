@@ -6,9 +6,16 @@ import { catchAsync } from "../utils/catchAsync";
 export const blogController = {
   //? CREATE BLOG
   createBlog: catchAsync(async (req: Request, res: Response) => {
-    const { authorId, title, blogBody } = req.body;
+    const { title, blogBody } = req.body;
 
-    const newBlog = await blogService.createBlog({ authorId, title, blogBody });
+    const user = req.user;
+    // console.log("user", user);
+
+    const newBlog = await blogService.createBlog({
+      authorId: user!.userId,
+      title,
+      blogBody,
+    });
     console.log("newBlog", newBlog);
     res.status(200).json({
       success: true,
