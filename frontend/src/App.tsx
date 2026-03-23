@@ -7,6 +7,7 @@ import ErrorBoundary from "./pages/ErrorBoundary";
 import AuthorManagement from "./pages/blog/AuthorManagement";
 import Login from "./pages/auth/Login";
 import Unauthorized from "./pages/Unauthorized";
+import PrivateRoute from "./pages/PrivateRoute";
 
 function App() {
   const router = createBrowserRouter([
@@ -17,7 +18,11 @@ function App() {
       children: [
         {
           path: "blog",
-          Component: BlogList,
+          element: (
+            <PrivateRoute allowedRoles={["READER"]}>
+              <BlogList />
+            </PrivateRoute>
+          ),
         },
         {
           path: "blog/new",

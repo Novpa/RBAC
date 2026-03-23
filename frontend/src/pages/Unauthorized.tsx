@@ -6,7 +6,7 @@ function Unauthorized() {
     <div>
       <h1>Access denied</h1>
       <button className="btn" onClick={() => navigate(-1)}>
-        navigate
+        Previous page
       </button>
     </div>
   );
