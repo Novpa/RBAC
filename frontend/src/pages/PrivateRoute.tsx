@@ -9,8 +9,6 @@ interface PrivateRouteProps {
 function PrivateRoute({ allowedRoles, children }: PrivateRouteProps) {
   const userRole = useAuthStore((state) => state.role);
   const accessToken = useAuthStore((state) => state.token);
-  console.log("Access token", accessToken);
-  console.log("allowed roles", allowedRoles, userRole);
 
   if (!accessToken) {
     return <Navigate to={"/login"} replace={true} />;
