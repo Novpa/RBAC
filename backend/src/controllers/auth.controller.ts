@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { authServices } from "../services/auth.service";
 import { catchAsync } from "../utils/catchAsync";
 import { revokeToken } from "../utils/token.util";
+import { ref } from "node:process";
 // import { env } from "../../";
 
 // Konfigurasi cookie yang sama dipakai di beberapa tempat — definisikan sekali
@@ -9,10 +10,10 @@ const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true, // Tidak bisa diakses document.cookie di browser
   // secure: process.env.NODE_ENV === "production", // Hanya HTTPS di production
   secure: false, // Hanya HTTPS di production
-  sameSite: "strict" as const, // Blokir cross-site request (anti-CSRF)
+  sameSite: "lax", // Blokir cross-site request (anti-CSRF)
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari dalam milidetik
-  path: "/api/auth", // Cookie hanya dikirim ke path /api/auth — lebih aman
-};
+  path: "/", //FIXME Cookie hanya dikirim ke path /api/auth — lebih aman
+} as const;
 
 export const authController = {
   //? REGISTER
@@ -80,10 +81,10 @@ export const authController = {
   //? REFRESH
   // will be hit by front-end once they have 401 response code : "TOKEN_EXPIRED"
   async refresh(req: Request, res: Response) {
+    console.log("Cookie yang diterima:", req.cookies.refreshToken);
     try {
       // ambil refresh token dari cookie
       const oldRefreshToken = req.cookies.refreshToken;
-      console.log("oldRefreshToken", oldRefreshToken);
 
       if (!oldRefreshToken) {
         return res
@@ -92,8 +93,17 @@ export const authController = {
       }
 
       // create new accessToken & new refreshToken
-      const { newRefreshToken, newAccessToken, user } =
-        await authServices.refreshToken(oldRefreshToken);
+      const data = await authServices.refreshToken(oldRefreshToken);
+      const newRefreshToken = data?.newRefreshToken;
+      const newAccessToken = data?.newAccessToken;
+      const user = data?.user;
+
+      console.log(
+        "new refresh controller",
+        newRefreshToken,
+        newAccessToken,
+        user,
+      );
 
       // store new token in the cookie
       res.cookie("refreshToken", newRefreshToken, REFRESH_COOKIE_OPTIONS);
@@ -103,14 +113,20 @@ export const authController = {
         data: { accessToken: newAccessToken, user },
       });
     } catch (error: any) {
-      // hapus cookie yang invalid
-      res.clearCookie("refreshToken", { path: "/auth" });
+      // Hanya hapus cookie jika error memang karena token bermasalah
+      if (error.message === "REFRESH_TOKEN_EXPIRED" || error.status === 401) {
+        res.clearCookie("refreshToken", REFRESH_COOKIE_OPTIONS);
+      }
+
       const message =
         error.message === "REFRESH_TOKEN_EXPIRED"
           ? "Your session has finished, re-login"
           : "Refresh token is not valid, re-login";
 
-      return res.status(401).json({ success: false, message });
+      // Gunakan status 401 untuk auth error, 500 untuk error server internal
+      const statusCode = error.message === "REFRESH_TOKEN_EXPIRED" ? 401 : 500;
+
+      return res.status(statusCode).json({ success: false, message });
     }
   },
 
@@ -125,7 +141,7 @@ export const authController = {
     }
 
     // clear cookie from the browser
-    res.clearCookie("refreshToken", { path: "/auth" });
+    res.clearCookie("refreshToken", { path: "/" });
 
     return res
       .status(200)

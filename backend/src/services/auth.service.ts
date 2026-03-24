@@ -9,7 +9,6 @@ import {
   generateRefreshToken,
   rotateRefreshToken,
 } from "../utils/token.util";
-import { error } from "node:console";
 
 const SALT_ROUNDS = 12;
 
@@ -152,49 +151,62 @@ export const authServices = {
 
   //? REFRESH TOKEN
   async refreshToken(oldRefreshToken: string) {
-    // 1) cari token di database
-    const storedToken = await prisma.refreshToken.findUnique({
-      where: { token: oldRefreshToken },
-      include: { user: true }, // ambil juga data user untuk pembuatan jwt dan refresh token yang baru
-    });
-
-    // 2. Token tidak ditemukan — ada dua kemungkinan:
-    //    a) Token sudah expired dan dibersihkan dari DB
-    //    b) TOKEN REUSE! — token ini sudah pernah dipakai sebelumnya
-    //       Ini sinyal kuat bahwa refresh token telah dicuri
-
-    if (!storedToken) {
-      throw new AppError(401, "Invalid refresh token");
-    }
-
-    // 3) check apakah token sudah expired?
-    if (storedToken.expiratesAt < new Date()) {
-      // Bersihkan token expired ini dari DB
-      await prisma.refreshToken.delete({
+    try {
+      // 1) cari token di database
+      const storedToken = await prisma.refreshToken.findUnique({
         where: { token: oldRefreshToken },
+        include: { user: true }, // ambil juga data user untuk pembuatan jwt dan refresh token yang baru
       });
-      throw new Error("REFRESH_TOKEN_EXPIRED"); // if expired --> ask user to log in again
+
+      // 2. Token tidak ditemukan — ada dua kemungkinan:
+      //    a) Token sudah expired dan dibersihkan dari DB
+      //    b) TOKEN REUSE! — token ini sudah pernah dipakai sebelumnya
+      //       Ini sinyal kuat bahwa refresh token telah dicuri
+
+      if (!storedToken) {
+        throw new AppError(401, "Invalid refresh token");
+      }
+
+      console.log("stored token", storedToken.token);
+
+      // 3) check apakah token sudah expired?
+      if (storedToken.expiratesAt < new Date()) {
+        // Bersihkan token expired ini dari DB
+        await prisma.refreshToken.delete({
+          where: { token: oldRefreshToken },
+        });
+        throw new Error("REFRESH_TOKEN_EXPIRED"); // if expired --> ask user to log in again
+      }
+
+      // 4) jika token valid maka lakukan rotasi
+      //    Hapus yang lama, buat yang baru (dalam satu transaksi)
+      const newRefreshToken = await rotateRefreshToken(
+        oldRefreshToken,
+        storedToken.userId,
+      );
+
+      const newAccessToken = generateAccessToken({
+        userId: storedToken.userId,
+        email: storedToken.user.email,
+        role: storedToken.user.role,
+      });
+
+      const user = {
+        userId: storedToken.user.id,
+        email: storedToken.user.email,
+        role: storedToken.user.role,
+      };
+
+      console.log(
+        "service refresh ==> ",
+        newRefreshToken,
+        newAccessToken,
+        user,
+      );
+
+      return { newRefreshToken, newAccessToken, user };
+    } catch (error) {
+      console.log(error);
     }
-
-    // 4) jika token valid maka lakukan rotasi
-    //    Hapus yang lama, buat yang baru (dalam satu transaksi)
-    const newRefreshToken = await rotateRefreshToken(
-      oldRefreshToken,
-      storedToken.userId,
-    );
-
-    const newAccessToken = generateAccessToken({
-      userId: storedToken.userId,
-      email: storedToken.user.email,
-      role: storedToken.user.role,
-    });
-
-    const user = {
-      userId: storedToken.user.id,
-      email: storedToken.user.email,
-      role: storedToken.user.role,
-    };
-
-    return { newRefreshToken, newAccessToken, user };
   },
 };

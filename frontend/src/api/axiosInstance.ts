@@ -27,42 +27,38 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    console.log("originalReques", originalRequest);
-
-    if (error.response.code === "TOKEN_EXPIRED" && !originalRequest._retry) {
+    if (
+      error.response.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/auth/refresh")
+    ) {
       originalRequest._retry = true;
 
       try {
         // 1) call api refresh to backend
         // Browser otomatis kirim refresh token di cookie karena withCredentials: true
 
-        const res = await axios.post(
-          "http://localhost:8000/api/auth/refresh",
-          {},
-          { withCredentials: true },
-        );
+        const res = await axios.get("http://localhost:8000/api/auth/refresh", {
+          withCredentials: true,
+        });
+        const { user, accessToken } = res.data.data;
 
-        const newAccessToken = res.data.accessToken;
+        // const newAccessToken = res.data.data.accessToken;
 
         // 2) update access token di zustand
         useAuthStore
           .getState()
-          .setAuth(
-            res.data.user.userId,
-            res.data.user.email,
-            res.data.user.role,
-            newAccessToken,
-          );
+          .setAuth(user.userId, user.email, user.role, accessToken);
 
         // 3) update Header di request yang tadi gagal
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
         // ulangi request yang tadi gagal
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         // jika refresh token juga expired atau gagal
         useAuthStore.getState().clearAuth();
-        window.location.href = "/login";
+        // window.location.href = "/login";
 
         return Promise.reject(refreshError);
       }

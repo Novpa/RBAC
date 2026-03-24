@@ -5,6 +5,7 @@ interface State {
   email: string;
   role: "AUTHOR" | "READER" | null;
   token: string;
+  setInitialized: boolean;
 }
 
 interface Action {
@@ -23,10 +24,11 @@ export const useAuthStore = create<State & Action>((set) => ({
   email: "",
   role: null,
   token: "",
+  setInitialized: false,
 
-  setAuth: (userId, email, role, token) => {
-    set({ userId, email, role, token });
-  },
+  setAuth: (userId, email, role, token) =>
+    set({ userId, email, role, token, setInitialized: true }),
 
-  clearAuth: () => set({ userId: "", email: "", role: null, token: "" }),
+  clearAuth: () =>
+    set({ userId: "", email: "", role: null, token: "", setInitialized: true }),
 }));
