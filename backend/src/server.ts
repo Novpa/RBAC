@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express, { Express, NextFunction, Request, Response } from "express";
 import authRouter from "./routers/auth.router";
-import blogRouter from "./routers/blog.router";
+// import blogRouter from "./routers/blog.router";
 import { globalErrorHandler } from "./middlewares/errorMiddleware";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -17,14 +17,17 @@ app.use(express.json());
 app.use(cookieParser());
 
 //cors middleware
-app.use(
-  cors({
-    origin: "http://localhost:5173", // Sesuaikan dengan URL Frontend kamu
-    credentials: true, // WAJIB TRUE agar cookie bisa lewat
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Izinkan OPTIONS
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
+// app.use(
+//   cors({
+//     origin: "http://localhost:5173", // Sesuaikan dengan URL Frontend kamu
+//     credentials: true, // WAJIB TRUE agar cookie bisa lewat
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Izinkan OPTIONS
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//   }),
+// );
+
+// endpoint
+app.use("/api/auth", authRouter);
 
 // error middleware
 app.use(globalErrorHandler);

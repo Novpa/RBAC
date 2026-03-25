@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { TokenPayload, verifyAccessToken } from "../utils/token.util";
+// import { TokenPayload, verifyAccessToken } from "../utils/token.util";
+import { TokenPayload } from "../utils/token.util";
 
 // tambahkan property 'user' ke tipe request bawaan express
 // Ini agar TypeScript tidak complain saat kita akses req.user di handler
@@ -39,12 +40,12 @@ export function authentication(
     // - Signature tidak valid (JsonWebTokenError: invalid signature)
     // - Format rusak (JsonWebTokenError: jwt malformed)
 
-    const payload = verifyAccessToken(token);
+    // const payload = verifyAccessToken(token);
 
     // Sisipkan payload ke object request
     // Handler selanjutnya bisa baca: req.user.userId, req.user.role, dll.
 
-    req.user = payload;
+    // req.user = payload;
 
     next();
   } catch (error: any) {

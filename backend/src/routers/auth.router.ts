@@ -1,14 +1,17 @@
 import { Request, Response, Router } from "express";
-import { authController } from "../controllers/auth.controller";
 import { authentication, authorization } from "../middlewares/auth.middleware";
+import { login, signup } from "../controllers/auth.controller";
 
 const router = Router();
 
-router.get("/", authController.getAllUser);
-router.post("/signup", authController.userRegister);
-router.post("/login", authController.userLogin);
-router.post("/logout", authentication, authController.logout);
-router.get("/refresh", authController.refresh);
+router.post("/signup", signup);
+router.post("/login", login);
+
+// router.get("/", authController.getAllUser);
+// router.post("/signup", authController.userRegister);
+// router.post("/login", authController.userLogin);
+// router.post("/logout", authentication, authController.logout);
+// router.get("/refresh", authController.refresh);
 
 //protected route
 router.get(
