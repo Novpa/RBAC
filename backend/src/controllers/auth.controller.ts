@@ -68,7 +68,7 @@ export const refresh = catchAsync(async (req: Request, res: Response) => {
   const oldRefreshToken = req.cookies.refreshToken;
 
   if (!oldRefreshToken) {
-    throw new AppError(401, "Sesi berakhir, silakan login kembali.");
+    throw new AppError(401, "Your session has finished, please re-login!");
   }
 
   // 1) verification JWT token (expires & secret)
@@ -81,8 +81,10 @@ export const refresh = catchAsync(async (req: Request, res: Response) => {
   });
 
   // 3) if jwt is valid but is not stored in the DB
+  // this means there's somebody try to use old token that has been deleted from the database
   if (!storedToken) {
     // delete all refresh token token that is belong to user in the DB (Security Breach)
+
     await prisma.refreshToken.deleteMany({ where: { userId: decoded.userId } });
     res.clearCookie("refreshToken", REFRESH_COOKIE_OPTIONS);
     throw new AppError(401, "Suspicious activities are detected");
