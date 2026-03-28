@@ -56,27 +56,23 @@ export const blogService = {
       ];
     }
 
-    try {
-      const [blogs, count] = await prisma.$transaction([
-        prisma.blog.findMany({
-          skip: offset,
-          take: limit,
-          where,
-          include: {
-            author: {
-              select: { firstName: true, lastName: true },
-            },
+    const [blogs, count] = await prisma.$transaction([
+      prisma.blog.findMany({
+        skip: offset,
+        take: limit,
+        where,
+        include: {
+          author: {
+            select: { firstName: true, lastName: true },
           },
-        }),
-        prisma.blog.count({ where }),
-      ]);
+        },
+      }),
+      prisma.blog.count({ where }),
+    ]);
 
-      const totalPage = Math.ceil(count / limit);
+    const totalPage = Math.ceil(count / limit);
 
-      return { blogs, totalData: count, totalPage };
-    } catch (error) {
-      handlePrismaError(error);
-    }
+    return { blogs, totalData: count, totalPage };
   },
 };
 
