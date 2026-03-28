@@ -1,34 +1,20 @@
 import { create } from "zustand";
 
 interface State {
-  userId: string;
-  email: string;
-  role: "AUTHOR" | "READER" | null;
-  token: string;
-  setInitialized: boolean;
+  accessToken: string | null;
+  user: any;
 }
 
 interface Action {
-  setAuth: (
-    userId: string,
-    email: string,
-    role: "AUTHOR" | "READER",
-    token: string,
-  ) => void;
-
+  setAuth: (token: string, user: any) => void;
   clearAuth: () => void;
 }
 
 export const useAuthStore = create<State & Action>((set) => ({
-  userId: "",
-  email: "",
-  role: null,
-  token: "",
-  setInitialized: false,
+  accessToken: null,
+  user: null,
 
-  setAuth: (userId, email, role, token) =>
-    set({ userId, email, role, token, setInitialized: true }),
+  setAuth: (token, user) => set({ accessToken: token, user }),
 
-  clearAuth: () =>
-    set({ userId: "", email: "", role: null, token: "", setInitialized: true }),
+  clearAuth: () => set({ accessToken: null, user: null }),
 }));
