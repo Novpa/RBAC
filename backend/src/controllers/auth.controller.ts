@@ -78,29 +78,22 @@ export const refresh = catchAsync(async (req: Request, res: Response) => {
     include: { user: true },
   });
 
-  // 3) if jwt is valid but is not stored in the DB
-  // this means there's somebody try to use old token that has been deleted from the database
-
   if (!storedToken) {
-    // delete all refresh token token that is belong to user in the DB (Security Breach)
-    // await prisma.refreshToken.deleteMany({ where: { userId: decoded.userId } });
-    // console.warn("Token not found in DB - might be a race condition");
-    // res.clearCookie("refreshToken", REFRESH_COOKIE_OPTIONS);
     throw new AppError(401, "Suspicious activities are detected");
   }
 
-  // 4) prepare new payload
+  // 3) prepare new payload
   const payload = {
     userId: storedToken.user.id,
     role: storedToken.user.role,
     fullName: `${storedToken.user.firstName} ${storedToken.user.lastName}`,
   };
 
-  // 5) do rotations in the service
+  // 4) do rotations in the service
   const newAccessToken = generateAccessToken(payload);
   const rotateSession = await userService.rotateToken(oldRefreshToken, payload); // note --> rotateToken fnc will generate new refresh token and generate old token in database
   const userResponse = formatUserResponse(rotateSession.user);
-  // 6) send to the client
+  // 5) send to the client
   res.cookie("refreshToken", rotateSession.token, REFRESH_COOKIE_OPTIONS);
 
   res.status(200).json({

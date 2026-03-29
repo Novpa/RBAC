@@ -8,10 +8,10 @@ export interface TokenPayload {
   fullName: string;
 }
 
-//? create access token (15 mins exp)
+//? create access token (1 hour exp)
 export const generateAccessToken = (payload: TokenPayload): string => {
   return jwt.sign(payload, process.env.JWT_ACCESS_SECRET!, {
-    expiresIn: "10s",
+    expiresIn: "1h",
   });
 };
 
