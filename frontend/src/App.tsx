@@ -7,7 +7,6 @@ import ErrorBoundary from "./pages/ErrorBoundary";
 import AuthorManagement from "./pages/blog/AuthorManagement";
 import Login from "./pages/auth/Login";
 import Unauthorized from "./pages/Unauthorized";
-// import PrivateRoute from "./pages/PrivateRoute";
 import { useEffect } from "react";
 import { useAuthStore } from "./store/useAuthStore";
 import api from "./api/axiosInstance";
