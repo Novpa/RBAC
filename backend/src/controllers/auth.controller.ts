@@ -27,11 +27,22 @@ export const signup = catchAsync(async (req: Request, res: Response) => {
 export const verifyOtp = async (req: Request, res: Response) => {
   const { email, otp } = req.body;
 
-  await emailService.verifyOtp(email, otp);
+  await userService.verifyOtp(email, otp);
 
   res.status(200).json({
     status: "success",
     message: "Email verified successfully, you can now login",
+  });
+};
+
+export const resendOtp = async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  await userService.resendOtp(email);
+
+  res.status(200).json({
+    status: "success",
+    message: "OTP has been resent, please check your email",
   });
 };
 

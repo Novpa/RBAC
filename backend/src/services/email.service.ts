@@ -15,29 +15,4 @@ export const emailService = {
       html: template.html,
     });
   },
-
-  verifyOtp: async (email: string, otp: string) => {
-    const user = await prisma.user.findUnique({ where: { email } });
-
-    if (!user) {
-      throw new AppError(404, "user is not found");
-    }
-
-    if (user.isVerified) {
-      throw new AppError(400, "user already exist");
-    }
-
-    if (!user.otpExpiresAt || user.otpExpiresAt < new Date()) {
-      throw new AppError(400, "OTP has expired");
-    }
-
-    if (otp !== user.otp) {
-      throw new AppError(400, "Email already verified");
-    }
-
-    return await prisma.user.update({
-      where: { email },
-      data: { isVerified: true, otp: null, otpExpiresAt: null },
-    });
-  },
 };

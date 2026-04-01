@@ -4,6 +4,7 @@ import {
   login,
   logout,
   refresh,
+  resendOtp,
   signup,
   verifyOtp,
 } from "../controllers/auth.controller";
@@ -15,12 +16,7 @@ router.post("/login", login);
 router.post("/logout", logout);
 router.get("/refresh", refresh);
 router.post("/verify-otp", verifyOtp);
-
-// router.get("/", authController.getAllUser);
-// router.post("/signup", authController.userRegister);
-// router.post("/login", authController.userLogin);
-// router.post("/logout", authentication, authController.logout);
-// router.get("/refresh", authController.refresh);
+router.post("/resend-otp", resendOtp);
 
 //protected route
 router.get(

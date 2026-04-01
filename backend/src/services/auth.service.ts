@@ -47,6 +47,67 @@ export const userService = {
     }
   },
 
+  //? verify otp
+  verifyOtp: async (email: string, otp: string) => {
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      throw new AppError(404, "user is not found");
+    }
+
+    if (user.isVerified) {
+      throw new AppError(400, "user already exist");
+    }
+
+    if (!user.otpExpiresAt || user.otpExpiresAt < new Date()) {
+      throw new AppError(400, "OTP has expired");
+    }
+
+    if (otp !== user.otp) {
+      throw new AppError(400, "Email already verified");
+    }
+
+    return await prisma.user.update({
+      where: { email },
+      data: { isVerified: true, otp: null, otpExpiresAt: null },
+    });
+  },
+
+  //? resend otp
+  resendOtp: async (email: string) => {
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      throw new AppError(404, "user is not found");
+    }
+
+    if (user.isVerified) {
+      throw new AppError(400, "you have been verified");
+    }
+
+    if (user.otpExpiresAt && user.otpExpiresAt > new Date()) {
+      throw new AppError(400, "OTP still active, please check your email");
+    }
+
+    const otp = generateOtp();
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { email },
+      data: { otp, otpExpiresAt },
+    });
+
+    await emailService.sendOtp(
+      email,
+      otp,
+      `${user.firstName} ${user.lastName}`,
+    );
+  },
+
   //? validate user
   validateUser: async (rawEmail: string, password: string) => {
     const email = rawEmail.toLowerCase().trim();
