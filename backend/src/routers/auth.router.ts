@@ -1,5 +1,6 @@
 import { Request, Response, Router } from "express";
 import { authentication, authorization } from "../middlewares/auth.middleware";
+
 import {
   login,
   logout,
