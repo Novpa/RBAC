@@ -1,6 +1,4 @@
-import { rejects } from "node:assert";
 import cloudinary from "../config/cloudinary.config";
-import { error } from "node:console";
 
 export const uploadCloudinary = (
   buffer: Buffer,

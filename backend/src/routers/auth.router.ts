@@ -9,10 +9,12 @@ import {
   signup,
   verifyOtp,
 } from "../controllers/auth.controller";
+import { signupSchema } from "../schemas/auth.schema";
+import { validate } from "../middlewares/validation.middleware";
 
 const router = Router();
 
-router.post("/signup", signup);
+router.post("/signup", validate(signupSchema), signup);
 router.post("/login", login);
 router.post("/logout", logout);
 router.get("/refresh", refresh);
